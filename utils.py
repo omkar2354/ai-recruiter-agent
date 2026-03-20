@@ -4,36 +4,6 @@ from config import GROQ_API_KEY
 
 client = Groq(api_key=GROQ_API_KEY)
 
-def ai_score_candidate(bio, jd_skills):
-    if not bio:
-        return 0
-
-    prompt = f"""
-    Job requires: {jd_skills}
-    Candidate bio: {bio}
-
-    Give score from 0 to 100.
-    Only return a number.
-    """
-
-    try:
-        response = client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": prompt}]
-        )
-
-        text = response.choices[0].message.content.strip()
-        print("AI RESPONSE:", text)
-
-        import re
-        match = re.search(r"\d+", text)
-
-        return float(match.group()) if match else 0
-
-    except Exception as e:
-        print("ERROR:", e)
-        return 0
-
 def search_github_users(query):
     url = f"https://api.github.com/search/users?q={query}&per_page=5"
     response = requests.get(url)
@@ -101,3 +71,33 @@ def calculate_fit_score(candidate_skills, jd_skills, bio, location, target_locat
         score += 10
 
     return round(score, 2)
+
+def ai_score_candidate(bio, jd_skills):
+    if not bio:
+        return 0
+
+    prompt = f"""
+    Job requires: {jd_skills}
+    Candidate bio: {bio}
+
+    Give score from 0 to 100.
+    Only return a number.
+    """
+
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}]
+        )
+
+        text = response.choices[0].message.content.strip()
+        print("AI RESPONSE:", text)
+
+        import re
+        match = re.search(r"\d+", text)
+
+        return float(match.group()) if match else 0
+
+    except Exception as e:
+        print("ERROR:", e)
+        return 0
